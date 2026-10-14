@@ -1,0 +1,5 @@
+﻿obs_datetime,obs_date,obs_time,station_id,name_en,name_th,area_en,area_th,station_type,lat,lon,aqi,aqi_level,pm25,pm10,o3,co,no2,so2,ws,wd,temp,rh,bp,rain,source_endpoint,ingested_at
+2026-09-10 21:00:00,2026-09-10,21:00,18t,"City Hall, Samut Prakan",ศาลากลางจังหวัดสมุทรปราการ ,"Pak Nam, Meuang, Samut Prakan","ต.ปากน้ำ อ.เมือง, สมุทรปราการ",GROUND,13.599149,100.597345,45,,23.1,,,,,,,,,,,,live_json,2026-10-14T08:01:29.041441+00:00
+2026-09-15 19:00:00,2026-09-15,19:00,74t,"Government Complex, Rayong",ศูนย์ราชการจังหวัดระยอง ,"Nern Pra, Meuang, Rayong","ศูนย์ราชการจังหวัดระยอง  ต.เนินพระ อ.เมือง, ระยอง",GROUND,12.7066,101.18055,12,,7.0,,,,,,,,,,,,live_json,2026-10-14T08:01:29.041441+00:00
+2026-09-19 20:00:00,2026-09-19,20:00,26t,Environmental Office 8 ratchaburi,สำนักงานสิ่งแวดล้อมภาคที่8,"Na Mueang, Mueang, Ratchaburi","ต.หน้าเมือง อ.เมือง, ราชบุรี",GROUND,13.52344,99.814082,18,,10.7,,,,,,,,,,,,live_json,2026-10-14T08:01:29.041441+00:00
+2026-09-30 23:00:00,2026-09-30,23:00,bkp128t,Phra Nakhon Park,สวนพระนคร,"Phra Nakhon Park, Lat Krabang, Bangkok",สวนพระนคร เขตลาดกระบัง,BKK,13.7201042,100.7807077,,0,,,,,,,,,,,,,live_json,2026-10-14T08:01:29.041441+00:00
