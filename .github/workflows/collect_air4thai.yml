@@ -1,0 +1,76 @@
+name: Air4Thai 5-Year Automated Collector (2026-2031)
+
+on:
+  schedule:
+    - cron: '15 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      lookback_days:
+        description: 'Number of past days of hourly history to fetch & deduplicate'
+        required: false
+        default: '3'
+      run_backfill:
+        description: 'Set to true to run a historical backfill range instead'
+        required: false
+        default: 'false'
+      backfill_start:
+        description: 'Backfill start date (YYYY-MM-DD) if run_backfill is true'
+        required: false
+        default: '2025-01-01'
+      backfill_end:
+        description: 'Backfill end date (YYYY-MM-DD) if run_backfill is true'
+        required: false
+        default: '2026-10-14'
+
+permissions:
+  contents: write
+
+env:
+  TZ: Asia/Bangkok
+  GDRIVE_FOLDER_ID: '1XncnjNCREBk-nJKdyYDqMgVI7jz1NWJE'
+  GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+  GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+  GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
+
+jobs:
+  collect-air4thai:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Pull latest SQLite database from Google Drive
+        run: python3 src/sync_drive.py --direction pull --folder-id "$GDRIVE_FOLDER_ID"
+
+      - name: Run Air4Thai Collector or Historical Backfill
+        run: |
+          if [ "${{ github.event.inputs.run_backfill }}" = "true" ]; then
+            python3 src/backfill.py \
+              --start-date "${{ github.event.inputs.backfill_start }}" \
+              --end-date "${{ github.event.inputs.backfill_end }}" \
+              --sleep 0.25
+          else
+            LOOKBACK="${{ github.event.inputs.lookback_days || '3' }}"
+            python3 src/collector.py --lookback-days "$LOOKBACK" --no-raw --station-sleep 0.15
+          fi
+
+      - name: Push updated SQLite DB & Monthly CSVs to Google Drive
+        run: python3 src/sync_drive.py --direction push --folder-id "$GDRIVE_FOLDER_ID"
+
+      - name: Commit secondary backup to GitHub repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/air4thai.db data/csv_monthly/*.csv || true
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(data): automated Air4Thai update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git pull --rebase origin main || true
+            git push
+          fi
